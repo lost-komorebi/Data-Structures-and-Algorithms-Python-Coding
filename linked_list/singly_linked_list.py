@@ -50,16 +50,17 @@ class SinglyLinkedList:
                 while temp_index < index - 1:
                     current_node = current_node.next
                     temp_index += 1
-                # current_node is the node before parameter index, so temp_node
-                # is the node at the parameter index
-                if current_node:
+                    if current_node == self.tail:
+                        break
+                if current_node == self.tail:  # parameter index lager than length of linked list, put node at the end of linked list
+                    current_node.next = new_node
+                    self.tail = new_node
+                else:
+                    # current_node is the node before parameter index, so temp_node
+                    # is the node at the parameter index
                     temp_node = current_node.next
                     current_node.next = new_node  # put parameter node after current_node
                     new_node.next = temp_node  # put parameter node before the node at the parameter index
-                else:  # parameter index lager than length of linked list, put node at the end of linked list
-                    temp_node = self.tail
-                    self.tail = new_node
-                    temp_node.next = new_node
 
     def traversal(self):
         """ traversal singly linked list by printing """
@@ -129,7 +130,7 @@ singly_linked_list = SinglyLinkedList()
 singly_linked_list.insert(0, 0)
 singly_linked_list.insert(2, -1)
 singly_linked_list.insert(1, 1)
-singly_linked_list.insert(4, 4)
+singly_linked_list.insert(4, 100)
 singly_linked_list.insert(3, 3)
 
 
