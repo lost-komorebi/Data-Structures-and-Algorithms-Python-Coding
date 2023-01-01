@@ -3,6 +3,7 @@
 
 __author__ = 'komorebi'
 
+""" reference: https://realpython.com/linked-lists-python/#how-to-insert-a-new-node """
 
 class Node:
     def __init__(self, data):
