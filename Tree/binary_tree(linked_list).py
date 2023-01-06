@@ -124,6 +124,13 @@ def delete(root_node, node_to_delete):
                 queue.en_queue(root.right_child)
 
 
+def clear(rootNode):
+    """ delete entire binary tree """
+    rootNode.data = None
+    rootNode.left_child = None
+    rootNode.right_child = None
+
+
 if __name__ == '__main__':
     my_tree = TreeNode('menu')
     food = TreeNode('food')
