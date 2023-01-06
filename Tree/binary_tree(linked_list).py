@@ -124,11 +124,11 @@ def delete(root_node, node_to_delete):
                 queue.en_queue(root.right_child)
 
 
-def clear(rootNode):
+def clear(root_node):
     """ delete entire binary tree """
-    rootNode.data = None
-    rootNode.left_child = None
-    rootNode.right_child = None
+    root_node.data = None
+    root_node.left_child = None
+    root_node.right_child = None
 
 
 if __name__ == '__main__':
