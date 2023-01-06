@@ -73,15 +73,16 @@ class Queue:
         self.linked_list.tail = None
 
 
-my_q = Queue()
-print(my_q.linked_list)
-print(my_q.is_empty())
-my_q.en_queue(1)
-my_q.en_queue(2)
-my_q.en_queue(3)
+if __name__ == '__main__':
+    my_q = Queue()
+    print(my_q.linked_list)
+    print(my_q.is_empty())
+    my_q.en_queue(1)
+    my_q.en_queue(2)
+    my_q.en_queue(3)
 
-print(my_q.de_queue())
-print(my_q.de_queue())
-print(my_q.de_queue())
-print(my_q.linked_list, my_q.linked_list.head, my_q.linked_list.tail)
-#print(my_q.peek())
+    print(my_q.de_queue())
+    print(my_q.de_queue())
+    print(my_q.de_queue())
+    print(my_q.linked_list, my_q.linked_list.head, my_q.linked_list.tail)
+    #print(my_q.peek())
