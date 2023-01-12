@@ -64,12 +64,13 @@ class StackByLinkedList:
         self.linked_list.head = None
 
 
-my_stack = StackByLinkedList()
-my_stack.push(1)
-my_stack.push(2)
-my_stack.push(3)
-print(my_stack)
-while not my_stack.is_empty():
-    my_stack.pop()
-    my_stack.pop()
-print(my_stack)
+if __name__ == '__main__':
+    my_stack = StackByLinkedList()
+    my_stack.push(1)
+    my_stack.push(2)
+    my_stack.push(3)
+    print(my_stack)
+    while not my_stack.is_empty():
+        my_stack.pop()
+        my_stack.pop()
+    print(my_stack)
