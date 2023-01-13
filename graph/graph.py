@@ -3,7 +3,7 @@
 
 __author__ = 'komorebi'
 
-""" using dict to represent graph """
+""" using adjacency lists to represent undirected graph """
 from stack_and_queue.queue_by_linked_list import Queue
 from stack_and_queue.stack_by_linked_list import StackByLinkedList
 import sys
@@ -32,6 +32,7 @@ class Graph:
 
     def add_edge(self, vertex1, vertex2):
         if vertex1 in self.g_dict.keys() and vertex2 in self.g_dict.keys():
+            # undirected graph, so we need to add both vertex as their neighbors
             if vertex2 not in self.g_dict[vertex1]:
                 self.g_dict[vertex1].append(vertex2)
             if vertex1 not in self.g_dict[vertex2]:
