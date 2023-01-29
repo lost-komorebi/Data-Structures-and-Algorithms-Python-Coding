@@ -39,9 +39,9 @@ class DisjointSet:
                 self.parent[x_root] = y_root
             else:  # ranks of both set are the same
                 # so it doesn't matter to point which set to another set
-                # we need to rise the rank
+                # we need to rise the rank of parent
                 self.parent[x_root] = y_root
-                self.rank[x_root] += 1
+                self.rank[y_root] += 1
 
     def is_cycle(self):
         # union all vertices with all their neighbors respectively
@@ -67,4 +67,3 @@ if __name__ == '__main__':
     }
     my_djs1 = DisjointSet(graph1)
     print(my_djs1.is_cycle())
-
