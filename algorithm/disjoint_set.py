@@ -7,11 +7,24 @@ two or more set without any element in common called disjoint sets
 """
 
 
+class Graph:
+    def __init__(self):
+        self.vertices = []
+        self.edges = []
+
+    def add_vertex(self, name):
+        self.vertices.append(name)
+
+    def add_edge(self, u, v):
+        self.edges.append([u, v])
+
+
 class DisjointSet:
-    def __init__(self, g=None):
+    def __init__(self, g: Graph = None):
         self.parent = {}
-        if g:  # init parent, each vertex as them parents
-            for vertex in g.keys():
+        self.g = g
+        if g:  # Initially create subsets containing only a single node which are the parent of itself
+            for vertex in g.vertices:
                 self.parent[vertex] = vertex
 
     def find(self, k):
@@ -30,41 +43,44 @@ class DisjointSet:
             return
         self.parent[x_root] = y_root  # points the root of x to the root of y
 
-    def is_cycle(self, graph):
-        # union all vertices with their neighbors respectively
-        for k in graph.keys():
-            for j in graph[k]:
-                self.union(k, j)
-        vertices = list(graph.keys())
-        # iterate all vertices to check if they are in same set
-        # then it is a cycle graph
-        for i in range(len(vertices) - 1):
-            if self.find(vertices[i]) != self.find(vertices[i + 1]):
-                return False
-        return True
+    def is_cycle(self):
+        # iterate all edges
+        for u, v in self.g.edges:
+            # if the two end nodes of the edge belongs to the same set then
+            # they form a cycle
+            u_root = self.find(u)
+            v_root = self.find(v)
+            if u_root == v_root:
+                return True
+            # perform union to merge the subsets together
+            self.union(u_root, v_root)
+        return False
 
 
 if __name__ == '__main__':
-    graph1 = {
-        'a': ['b', 'c'],
-        'b': ['a', 'd'],
-        'c': ['a', 'd', 'e'],
-        'd': ['c', 'b', 'f'],
-        'e': ['c', 'f'],
-        'f': ['d', 'e', 'g'],
-        'g': ['b', 'f']
-    }
-    my_djs1 = DisjointSet(graph1)
-    print(my_djs1.is_cycle(graph1))
+    graph1 = Graph()
+    graph1.add_vertex('a')
+    graph1.add_vertex('b')
+    graph1.add_vertex('c')
+    graph1.add_vertex('d')
+    graph1.add_edge('a', 'b')
+    graph1.add_edge('b', 'c')
+    graph1.add_edge('c', 'd')
+    graph1.add_edge('d', 'a')
 
-    graph2 = {
-        'a': ['b', 'c'],
-        'b': ['a', 'd'],
-        'c': ['a', 'd', 'e'],
-        'd': ['c', 'b', 'f'],
-        'e': ['c', 'f'],
-        'f': ['d', 'e'],
-        'g': []
-    }
+    my_djs1 = DisjointSet(graph1)
+    print(my_djs1.is_cycle())
+
+    print('>>>>>>')
+
+    graph2 = Graph()
+    graph2.add_vertex('a')
+    graph2.add_vertex('b')
+    graph2.add_vertex('c')
+    graph2.add_vertex('d')
+    graph2.add_edge('a', 'b')
+    graph2.add_edge('b', 'c')
+    graph2.add_edge('c', 'd')
+
     my_djs2 = DisjointSet(graph2)
-    print(my_djs2.is_cycle(graph2))
+    print(my_djs2.is_cycle())
