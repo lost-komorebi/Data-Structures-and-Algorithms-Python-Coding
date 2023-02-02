@@ -49,7 +49,37 @@ def find_build_order(projects, dependencies):
         print('no topological path for current graph')
 
 
+def find_build_order1(projects, dependencies):
+    graph = create_graph(projects, dependencies)
+    path = []
+    while graph:
+        # indegree_nodes reducing, non_indegree_nodes increasing
+        indegree_nodes = find_indegree_nodes(graph)
+        non_indegree_nodes = find_non_indegee_nodes(graph, indegree_nodes)
+        if not non_indegree_nodes:  # no nodes have no indegree, we cannot start loop
+            raise Exception('no topological sort')
+        for node in non_indegree_nodes:
+            path.append(node)
+            del graph[node]
+
+
+def find_non_indegee_nodes(graph, indegree_nodes):
+    """ find nodes without indegree """
+    all_nodes = set(graph.keys())
+    non_indegree_nodes = all_nodes - indegree_nodes
+    return non_indegree_nodes
+
+
+def find_indegree_nodes(graph):
+    """ find nodes with indegree """
+    indegree_nodes = set()
+    for i in graph:
+        indegree_nodes.update(graph[i])
+    return indegree_nodes
+
+
 if __name__ == '__main__':
     project = ['a', 'b', 'c', 'd', 'e', 'f']
     dependencies = [('a', 'd'), ('f', 'b'), ('b', 'd'), ('f', 'a'), ('d', 'c')]
     find_build_order(project, dependencies)
+    find_build_order1(project, dependencies)
