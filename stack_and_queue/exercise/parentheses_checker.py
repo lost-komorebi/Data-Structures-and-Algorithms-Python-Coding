@@ -24,6 +24,9 @@ class Stack:
     def is_empty(self):
         return self.items == []
 
+    def peek(self):
+        return self.items[-1]
+
 
 def checker(my_str):
     """
@@ -45,6 +48,30 @@ def checker(my_str):
     return my_stack.is_empty() and balanced
 
 
+def checker1(my_str):
+    balanced = True  # assume parentheses are balanced
+    my_stack = Stack()
+    for i in my_str:
+        if i in '([{':
+            my_stack.push(i)
+        else:
+            if my_stack.is_empty():
+                balanced = False
+            else:
+                opening_symbol = my_stack.peek()
+                if not helper(opening_symbol, i):
+                    balanced = False
+                else:
+                    my_stack.pop()
+    return my_stack.is_empty() and balanced
+
+
+def helper(open, close):
+    """ to check if two parameters match or not """
+    dic = {'(': ')', '[': ']', '{': '}'}
+    return dic[open] == close
+
+
 if __name__ == '__main__':
     parentheses = ['(()()()())',
                    '(((())))',
@@ -54,3 +81,13 @@ if __name__ == '__main__':
                    '(()()(()']
     for parenthesis in parentheses:
         print(checker(parenthesis))
+    parentheses1 = [
+        '{{([][])}()}',
+        '[[{{(())}}]]',
+        '[][][](){}',
+        '([)]',
+        '((()]))',
+        '[{()]'
+    ]
+    for parenthesis in parentheses1:
+        print(checker1(parenthesis))
