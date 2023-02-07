@@ -5,6 +5,8 @@ __author__ = 'komorebi'
 
 """ convert an infix expression to postfix or prefix expression """
 
+OPERANDS = [chr(i).upper() for i in range(97, 97 + 26)]
+
 
 class Stack:
 
@@ -27,14 +29,22 @@ class Stack:
 
 def infix_to_postfix(expression: str) -> str:
     expression = expression.split(' ')
-    operands = [chr(i).upper() for i in range(97, 97 + 26)]
+
+    # parentheses check
+    if not parentheses_checker(expression, 1):
+        raise Exception('Invalid expression')
+    # operator numbers = operand number - 1
+    if not operators_checker(expression):
+        raise Exception('Invalid expression')
+    if not expression_checker(expression):
+        raise Exception('Invalid expression')
     # store precedence level for operators
     pre = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 2, '(': 0}
     op_stack = Stack()
     output_list = []
     for i in expression:
         # If the token is an operand, append it to the end of the output list.
-        if i in operands or i.isdigit():
+        if i in OPERANDS or i.isdigit():
             output_list.append(i)
         # If the token is a left parenthesis, push it on the op_stack.
         elif i == '(':
@@ -58,16 +68,65 @@ def infix_to_postfix(expression: str) -> str:
     return ' '.join(output_list)
 
 
+def parentheses_checker(expression, n: int) -> bool:
+    """
+    if n == 0, so the expected result is no parentheses in expression
+    if n == 1, so the expected result is parentheses appear in pairs or no parentheses in expression
+    """
+    if n == 0:
+        if '(' not in expression and ')' not in expression:
+            return True
+        return False
+    else:
+        stack = Stack()
+        for i in expression:
+            if i == '(':
+                stack.push(i)
+            if i == ')':
+                stack.pop()
+        return stack.is_empty()
+
+
+def operators_checker(expression):
+    """ operator number = operand number - 1 """
+    operator_number = 0
+    operand_number = 0
+    for i in expression:
+        if i in '+-*/^':
+            operator_number += 1
+        if i.isdigit() or i in OPERANDS:
+            operand_number += 1
+    return operator_number == operand_number - 1
+
+
+def expression_checker(expression):
+    """ the expression can only contains '+-*/^()', numbers and alphabet """
+    for i in expression:
+        if i not in '+-*/^() ' and not i.isalnum():
+            return False
+    return True
+
+
 def infix_to_prefix(expression: str) -> str:
+
+    # parentheses check
+    if not parentheses_checker(expression, 1):
+        raise Exception('Invalid expression')
+    # operator numbers = operand number - 1
+    if not operators_checker(expression):
+        raise Exception('Invalid expression')
+    if not expression_checker(expression):
+        raise Exception('Invalid expression')
+
     expression = expression.split(' ')[::-1]  # reverse expression
-    operands = [chr(i).upper() for i in range(97, 97 + 26)]
+
     # store precedence level for operators
     pre = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 2, ')': 0}
     op_stack = Stack()
     output_list = []
     for i in expression:
         # If the token is an operand, append it to the end of the output list.
-        if i in operands or i.isdigit():
+        if i in OPERANDS or i.isdigit():
             output_list.append(i)
         # If the token is a right parenthesis, push it on the op_stack.
         elif i == ')':
@@ -97,10 +156,19 @@ def infix_to_prefix(expression: str) -> str:
 
 def calculate_postfix(expression: str) -> float:
     expression = expression.split(' ')
-    digits = '0123456789'
+
+    # no parentheses
+    if not parentheses_checker(expression, 0):
+        raise Exception('Invalid expression')
+    # operator numbers = operand number - 1
+    if not operators_checker(expression):
+        raise Exception('Invalid expression')
+    if not expression_checker(expression):
+        raise Exception('Invalid expression')
+
     op_stack = Stack()
     for i in expression:
-        if i in digits:
+        if i.isdigit():
             op_stack.push(i)
         else:
             operand1 = op_stack.pop()
