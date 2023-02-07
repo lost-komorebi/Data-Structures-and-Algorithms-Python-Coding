@@ -3,7 +3,7 @@
 
 __author__ = 'komorebi'
 
-""" convert an infix expression to postfix expression """
+""" convert an infix expression to postfix or prefix expression """
 
 
 class Stack:
@@ -58,6 +58,43 @@ def infix_to_postfix(expression: str) -> str:
     return ' '.join(output_list)
 
 
+def infix_to_prefix(expression: str) -> str:
+    expression = expression.split(' ')[::-1]  # reverse expression
+    operands = [chr(i).upper() for i in range(97, 97 + 26)]
+    # store precedence level for operators
+    pre = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 2, ')': 0}
+    op_stack = Stack()
+    output_list = []
+    for i in expression:
+        # If the token is an operand, append it to the end of the output list.
+        if i in operands or i.isdigit():
+            output_list.append(i)
+        # If the token is a right parenthesis, push it on the op_stack.
+        elif i == ')':
+            op_stack.push(i)
+        # If the token is a left parenthesis, pop the op_stack until the corresponding right parenthesis is removed.
+        # Append each operator to the end of the output list.
+        elif i == '(':
+            pop_string = op_stack.pop()
+            while pop_string != ')':
+                output_list.append(pop_string)
+                pop_string = op_stack.pop()
+        else:  # i is operator
+            if op_stack.is_empty():
+                op_stack.push(i)
+            elif op_stack.peek() == ')':
+                op_stack.push(i)
+            elif pre[i] >= pre[op_stack.peek()]:
+                op_stack.push(i)
+            else:
+                while not op_stack.is_empty() or op_stack.peek(
+                ) != ')' or pre[i] < pre[op_stack.peek()]:
+                    op_stack.pop()
+    while not op_stack.is_empty():
+        output_list.append(op_stack.pop())
+    return ' '.join(reversed(output_list))  # reverse again
+
+
 def calculate_postfix(expression: str) -> float:
     expression = expression.split(' ')
     digits = '0123456789'
@@ -82,3 +119,17 @@ if __name__ == '__main__':
     print(infix_to_postfix('5 * 3 ^ ( 4 - 2 )'))
     print(calculate_postfix('4 5 6 * +'))
     print(calculate_postfix('7 8 + 3 2 + /'))
+    print(infix_to_postfix('( A + B ) * ( C + D ) * ( E + F )'))
+    # full parentheses
+    print(infix_to_postfix('( ( ( A + B ) * ( C + D ) ) * ( E + F ) )'))
+    print(infix_to_postfix('A + ( ( B + C ) * ( D + E ) )'))
+    # full parentheses
+    print(infix_to_postfix('( A + ( ( B + C ) * ( D + E ) ) )'))
+    print(infix_to_postfix('A * B * C * D + E + F'))
+    # full parentheses
+    print(infix_to_postfix('( ( ( ( ( A * B ) * C ) * D ) + E ) + F )'))
+    print(calculate_postfix('2 3 * 4 +'))
+    print(calculate_postfix('1 2 + 3 + 4 + 5 +'))
+    print(calculate_postfix('1 2 3 4 5 * + * +'))
+    print(infix_to_prefix('( A + B )'))
+    print(infix_to_prefix('( ( A + ( B * C ) ) + D )'))
