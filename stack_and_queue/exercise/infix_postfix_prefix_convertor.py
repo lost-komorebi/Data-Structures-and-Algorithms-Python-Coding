@@ -179,6 +179,44 @@ def calculate_postfix(expression: str) -> float:
     return op_stack.pop()
 
 
+def infix_evaluator(expression):
+    """
+    Implement a direct infix evaluator that combines the functionality of infix-to-postfix conversion
+    and the postfix evaluation algorithm. Your evaluator should process infix tokens from left to right
+    and use two stacks, one for operators and one for operands, to perform the evaluation.
+    """
+    expression = expression.split(' ')
+    operator_stack = Stack()
+    operand_stack = Stack()
+    pre = {'/': 2, '*': 2, '+': 1, '-': 1, '(': 0}  # precedence level
+    for i in expression:
+        if i in OPERANDS or i.isdigit():
+            operand_stack.push(i)
+        elif i == '(':
+            operator_stack.push(i)
+        elif i == ')':
+            pop_string = operator_stack.pop()
+            while pop_string != '(':
+                operand1 = str(operand_stack.pop())
+                operand2 = str(operand_stack.pop())
+                operand_stack.push(eval(operand1 + pop_string + operand2))
+                pop_string = operator_stack.pop()
+        else:
+            if not operator_stack.is_empty(
+            ) and pre[operator_stack.peek()] >= pre[i]:
+                pop_string = operator_stack.pop()
+                operand1 = str(operand_stack.pop())
+                operand2 = str(operand_stack.pop())
+                operand_stack.push(eval(operand2 + pop_string + operand1))
+            operator_stack.push(i)
+    while not operator_stack.is_empty():
+        pop_string = operator_stack.pop()
+        operand1 = str(operand_stack.pop())
+        operand2 = str(operand_stack.pop())
+        operand_stack.push(eval(operand2 + pop_string + operand1))
+    return operand_stack.pop()
+
+
 if __name__ == '__main__':
     print(infix_to_postfix('A * B + C * D'))
     print(infix_to_postfix('A + B * C'))
@@ -199,5 +237,18 @@ if __name__ == '__main__':
     print(calculate_postfix('2 3 * 4 +'))
     print(calculate_postfix('1 2 + 3 + 4 + 5 +'))
     print(calculate_postfix('1 2 3 4 5 * + * +'))
+    print(infix_to_postfix('( 1 + ( 2 * ( 3 + ( 4 * 5 ) ) ) )'))
+    print(infix_evaluator('( 1 + ( 2 * ( 3 + ( 4 * 5 ) ) ) )'))
     print(infix_to_prefix('( A + B )'))
     print(infix_to_prefix('( ( A + ( B * C ) ) + D )'))
+    print(infix_evaluator('1 + 2 * 2 + 3'))
+    print(infix_evaluator('1 + 2 * 2 + 3 / 1 * 2 + 1'))
+    print(infix_evaluator('( 1 + 2 ) * ( 3 + 4 ) * ( 5 + 6 )'))
+    # full parentheses
+    print(infix_evaluator('( ( ( 1 + 2 ) * ( 3 + 4 ) ) * ( 5 + 6 ) )'))
+    print(infix_evaluator('1 + ( ( 2 + 3 ) * ( 4 + 5 ) )'))
+    # full parentheses
+    print(infix_evaluator('( 1 + ( ( 2 + 3 ) * ( 4 + 5 ) ) )'))
+    print(infix_evaluator('1 * 2 * 3 * 4 + 5 + 6'))
+    # full parentheses
+    print(infix_evaluator('( ( ( ( ( 1 * 2 ) * 3 ) * 4 ) + 5 ) + 6 )'))
