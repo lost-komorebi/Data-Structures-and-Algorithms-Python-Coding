@@ -10,7 +10,7 @@ sys.path.append('..')
 
 def palindrome_checker(string):
     d = Deque()
-    for i in string:
+    for i in string.replace(' ', ''):
         d.add_rear(i)
     for i in range(d.size() // 2):
         front = d.remove_front()
@@ -23,3 +23,8 @@ def palindrome_checker(string):
 if __name__ == '__main__':
     print(palindrome_checker('abcdba'))
     print(palindrome_checker('madam'))
+    print(palindrome_checker('I PREFER PI'))
+
+
+
+
