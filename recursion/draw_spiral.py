@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 '''
-@File    :   draw_spiral
+@File    :   draw_spiral.py
 @Time    :   2023/02/14 21:38:42
 @Author  :   komorebi 
 '''
