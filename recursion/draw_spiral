@@ -10,7 +10,7 @@
 from turtle import *
 
 my_turtle = Turtle()  # init a turtle object
-my_win = my_turtle.getscreen()  # init a window
+my_win = my_turtle.getscreen()  # init window
 
 
 def draw_spiral(my_turtle, length_of_line):
