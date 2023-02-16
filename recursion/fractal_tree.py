@@ -7,17 +7,23 @@
 '''
 
 from turtle import *
+import random
 
 
 def tree(length_of_branch, thickness, t):
     if length_of_branch > 5:
+        t.speed('fastest')
         t.width(thickness)
         t.forward(length_of_branch)
-        t.right(20)
-        tree(length_of_branch-15, thickness-3, t)
-        t.left(40)
-        tree(length_of_branch-10, thickness-2, t)
-        t.right(20)
+        random_angel = random.randint(15, 30)
+        random_reduction = random.randint(10, 15)
+        t.right(random_angel)
+        tree(length_of_branch-random_reduction,
+             thickness-random_reduction/5, t)
+        t.left(2*random_angel)
+        tree(length_of_branch-random_reduction,
+             thickness-random_reduction/5, t)
+        t.right(random_angel)
         t.backward(length_of_branch)
 
 
