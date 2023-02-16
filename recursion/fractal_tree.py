@@ -14,6 +14,10 @@ def tree(length_of_branch, thickness, t):
     if length_of_branch > 5:
         t.speed('fastest')
         t.width(thickness)
+        if length_of_branch > 30:
+            t.color('brown')
+        else:
+            t.color('green')
         t.forward(length_of_branch)
         random_angel = random.randint(15, 30)
         random_reduction = random.randint(10, 15)
@@ -24,6 +28,10 @@ def tree(length_of_branch, thickness, t):
         tree(length_of_branch-random_reduction,
              thickness-random_reduction/5, t)
         t.right(random_angel)
+        if length_of_branch > 30:
+            t.color('brown')
+        else:
+            t.color('green')
         t.backward(length_of_branch)
 
 
@@ -33,6 +41,5 @@ t.left(90)
 t.up()
 t.backward(300)
 t.down()
-t.color('green')
 tree(110, 22, t)
 my_win.exitonclick()
