@@ -20,5 +20,13 @@ def draw_spiral(my_turtle, length_of_line):
         draw_spiral(my_turtle, length_of_line-5)
 
 
+def draw_spiral1(my_turtle, length_of_line):
+    while length_of_line > 0:
+        my_turtle.forward(length_of_line)
+        my_turtle.right(90)
+        length_of_line -= 5
+
+
 draw_spiral(my_turtle, 100)
+draw_spiral1(my_turtle, 100)
 my_win.exitonclick()
