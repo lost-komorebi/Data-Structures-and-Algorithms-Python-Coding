@@ -82,6 +82,9 @@ class HashTable:
     def __getitem__(self, key):
         return self.get(key)
 
+    def __contains__(self, key):
+        return True if self[key] else False
+
 
 if __name__ == '__main__':
     h = HashTable()
@@ -102,3 +105,4 @@ if __name__ == '__main__':
     print(h.slots, h.data, len(h))
     h[122] = "elephant"
     print(h.slots, h.data, len(h))
+    print(11 in h)
