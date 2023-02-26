@@ -84,6 +84,9 @@ class HashTable:
 
     def __contains__(self, key):
         return True if self[key] else False
+    
+    def __delitem__(self, key):
+        self.delete(key)
 
 
 if __name__ == '__main__':
