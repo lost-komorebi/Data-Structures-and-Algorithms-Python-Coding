@@ -8,23 +8,20 @@
 
 """
 Implement the binary search using recursion without the slice operator.
- Recall that you will need to pass the list along with the starting and ending index values for the sublist.
+Recall that you will need to pass the list along with the starting and ending index values 
+for the sublist.
 """
 
 
 
 
 import random
-def recursive_binary_search(li: list, n: int, start: int = None, end: int = None) -> bool:
-    if start is None:
-        start = 0  # index of first element
+def recursive_binary_search(li: list, n: int, start: int = 0, end: int = None) -> bool:
     if end is None:
         end = len(li) - 1  # index of last element
-    if start >= end:
+    if start > end:
         return False
-    length = end - start + 1
-    midpoint = length // 2
-    print(start, end, length, midpoint, li[start:end])
+    midpoint = (start + end) // 2
     if n == li[midpoint]:
         return True
     elif n < li[midpoint]:
@@ -48,12 +45,11 @@ def iterative_binary_search(li: list, n: int) -> bool:
 
 
 if __name__ == '__main__':
-    li = list(range(99))
-    #print(recursive_binary_search(li, 0))
+    li = list(range(100))
     for i in range(-100, 100):
         if (i in li) != iterative_binary_search(li, i):
             print(i, (i in li), iterative_binary_search(li, i))
-    #     if (i in li) != recursive_binary_search(li, i):
-    #         print(i, (i in li), recursive_binary_search(li, 0))
+        if (i in li) != recursive_binary_search(li, i):
+            print(i, (i in li), recursive_binary_search(li, i))
 
-    #print(recursive_binary_search(li, 100))
+    
