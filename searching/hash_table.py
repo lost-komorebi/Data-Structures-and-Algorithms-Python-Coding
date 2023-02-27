@@ -5,7 +5,7 @@
 @Time    :   2023/02/19 14:16:35
 @Author  :   komorebi 
 '''
-
+import random
 
 class HashTable:
 
@@ -37,6 +37,7 @@ class HashTable:
     #             self.data[position] = value
 
     def put(self, key, value):
+        #print(key, value, self.slots, self.data)
         """ put key-value pair into hash table """
         hash_value = self.hash(key)
         if self.slots[hash_value] is None:
@@ -48,10 +49,17 @@ class HashTable:
                 if self.data[hash_value] != value:
                     self.data[hash_value] = value
             else:
-                rehash_value = self.rehash(hash_value)
+                time = 0 
+                rehash_value = self.quadratic_rehash(hash_value, time)
+                start_position = rehash_value
                 # recursive call to find a available position to put
                 while self.slots[rehash_value] != None and self.slots[rehash_value] != key:
-                    rehash_value = self.rehash(rehash_value)
+                    time += 1
+                    rehash_value = self.quadratic_rehash(rehash_value, time)
+                    # loop to the first slot, it means cannot find a empty slot for current key, 
+                    # so resize hash table
+                    if rehash_value == start_position: 
+                        self.resize()
                 # after recursive call, one circumstance is to find a empty slot
                 if self.slots[rehash_value] is None:
                     self.slots[rehash_value] = key
@@ -60,7 +68,7 @@ class HashTable:
                 else:  # another circumstance is find a non empty slot, but need to update value
                     self.data[rehash_value] = value
         # when the load factor reaches 0.7, resize the hash table
-        if self.get_load_factor() > 0.7:
+        if self.get_load_factor() >= 0.7:
             self.resize()
 
     def resize(self):
@@ -78,37 +86,45 @@ class HashTable:
 
 
     def get(self, key):
-        start_slot = self.hash(key)
-        position = start_slot
-        if self.slots[position] == key:
-            return self.data[position]
-        while self.slots[position] != key:
-            position = self.rehash(position)
-            if self.slots[position] == key:
-                return self.data[position]
-            if position == start_slot:  # we have finished looping through all slots one time
+        hash_value = self.hash(key)
+        if self.slots[hash_value] == key:
+            return self.data[hash_value]
+        time = 0
+        rehash_value = self.quadratic_rehash(hash_value, time)
+        position = rehash_value
+        while self.slots[rehash_value] != key:
+            time += 1
+            rehash_value = self.quadratic_rehash(rehash_value, time)
+            # loop to the first slot, it means cannot find the key in hash table 
+            if rehash_value == position:  # we have finished looping through all slots one time
                 return None
+        if self.slots[rehash_value] == key:
+                return self.data[rehash_value]
 
     def __len__(self):
         return self.length
 
     def delete(self, key):
-        start_slot = self.hash(key)
-        position = start_slot
-        if self.slots[position] == key:
-            self.slots[position] = None
-            self.data[position] = None
+        hash_value = self.hash(key)
+        if self.slots[hash_value] == key:
+            self.slots[hash_value] = None
+            self.data[hash_value] = None
             self.length -= 1
         else:
-            while self.slots[position] != key:
-                position = self.rehash(position)
-                if position == start_slot:  # we have finished looping through all slots one time
+            time = 0
+            rehash_value = self.quadratic_rehash(hash_value, time)
+            position = rehash_value
+            while self.slots[rehash_value] != key:
+                time += 1
+                rehash_value = self.quadratic_rehash(rehash_value, time)
+                # loop to the first slot, it means cannot find the key in hash table 
+                if rehash_value == position:  # we have finished looping through all slots one time
                     raise Exception(f"KeyError: '{key}'")
-            if self.slots[position] == key:
-                self.slots[position] = None
-                self.data[position] = None
+            if self.slots[rehash_value] == key:
+                self.slots[rehash_value] = None
+                self.data[rehash_value] = None
                 self.length -= 1
-
+        
     def get_load_factor(self):
         return self.length / self.size
 
@@ -119,7 +135,12 @@ class HashTable:
         return key % self.size
 
     def rehash(self, old_hash):
+        """ linear probing """
         return (old_hash + 1) % self.size
+    
+    def quadratic_rehash(self, old_hash, time):
+        """ quadratic probing """
+        return (old_hash + time**2) % self.size
 
     def __setitem__(self, key, value):
         self.put(key, value)
@@ -135,24 +156,20 @@ class HashTable:
 
 
 if __name__ == '__main__':
-    h = HashTable()
-    h[11] = 'cat'
-    h[22] = 'dog'
-    h[33] = "duck"
-    h[44] = "rabbit"
-    h[55] = "lion"
-    h[66] = "tiger"
-    h[77] = "bird"
-    h[88] = "cow"
-    h[99] = "goat"
-    h[110] = "pig"
-    h[121] = "chicken"
-    print(h[22])
-    print(h.slots, h.data, len(h))
-    h[33] = "dolphin"
-    h.delete(33)
-    print(h.slots, h.data, len(h))
-    h[122] = "elephant"
-    print(h.slots, h.data, len(h))
-    print(11 in h)
-   
+    my_ht = HashTable()
+    dic = {}
+    for i in range(0,100,11):
+        value = random.uniform(0,1)
+        my_ht[i] = value
+        dic[i] = value
+    print(my_ht.slots)
+    print(my_ht.data)
+    print(dic)
+    for i in dic:
+        if my_ht[i] != dic[i]:
+            print(i,my_ht[i],dic[i])
+    for i in dic:
+        del my_ht[i]
+    print(my_ht.slots)
+    print(my_ht.data)
+    print(len(my_ht))
