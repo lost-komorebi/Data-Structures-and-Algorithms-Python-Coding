@@ -17,16 +17,17 @@ reference: https://github.com/bnmnetp/CS160/blob/ad4f47ec083857bc2f328839ceb3f01
 
 
 class State:
-    def __init__(self, amount1, amount2) -> None:
-        # amount1 is the water amount in jug which capacity is 4
-        # amount2 is the water amount in jug which capacity is 3
-        self.state = [amount1, amount2]
+    def __init__(self, capacity1: int, capacity2: int, goal: list) -> None:
+        self.state = [0, 0]  # water amount in jug1, water amout in jug2
+        self.goal = goal
+        self.capacity1 = capacity1
+        self.capacity2 = capacity2
 
     def fill_jug1(self):
-        self.state[0] = 4
+        self.state[0] = self.capacity1
 
     def fill_jug2(self):
-        self.state[1] = 3
+        self.state[1] = self.capacity2
 
     def empty_jug1(self):
         self.state[0] = 0
@@ -36,63 +37,60 @@ class State:
 
     def pour_jug1_to_jug2(self):
         # the amount of water that jug2 still can add
-        jug2_valid_capacity = 3 - self.state[1]
+        jug2_valid_capacity = self.capacity2 - self.state[1]
         if self.state[0] > jug2_valid_capacity:
             self.state[0] = self.state[0] - jug2_valid_capacity
-            self.state[1] = 3
+            self.state[1] = self.capacity2
         else:
             self.state[1] = self.state[1] + self.state[0]
             self.state[0] = 0
 
     def pour_jug2_to_jug1(self):
         # the amount of water that jug1 still can add
-        jug1_valid_capacity = 4 - self.state[0]
+        jug1_valid_capacity = self.capacity1 - self.state[0]
         if self.state[1] > jug1_valid_capacity:
-            self.state[0] = 4
+            self.state[0] = self.capacity1
             self.state[1] = self.state[1] - jug1_valid_capacity
         else:
             self.state[0] = self.state[0] + self.state[1]
             self.state[1] = 0
 
-    def __eq__(self, __o: object) -> bool:
-        return self.state[0] == __o.state[0] and self.state[1] == __o.state[1]
+    def is_jug1_full(self):
+        return self.state[0] == self.capacity1
 
-    def search(self, start, goal, moves):
-        print(start.state)
-        if start.state[0] == 2:
-            return
+    def is_jug2_empty(self):
+        return self.state[1] == 0
+
+    def __str__(self):
+        return f'jug1 water amount {self.state[0]}L, jug2 water amount {self.state[1]}L'
+
+    def search(self):
+        if self.goal[0] > max(self.capacity1, self.capacity2):
+            return "It's impossible to get {self.goal[0]} L water by jug1 and jug2"
+        if self.goal[0] % self.gcd(self.capacity1, self.capacity2) != 0:
+            return "It's impossible to get {self.goal[0]} L water by jug1 and jug2"
         else:
-            (self.fill_jug1 or self.fill_jug2 or self.empty_jug1 or self.empty_jug2 or self.pour_jug1_to_jug2 or self.pour_jug2_to_jug1)
-            self.search(start, goal, moves)
-        # elif start.state[0] == 0:
-        #     self.fill_jug1()
-        #     print('fill_jug1')
-        #     self.search(start, goal, moves)
-        # elif start.state[1] == 0:
-        #     self.fill_jug2()
-        #     print('fill_jug2')
-        #     self.search(start, goal, moves)
-        # elif start.state[1] == 3:
-        #     self.pour_jug2_to_jug1()
-        #     print('pour_jug2_to_jug1')
-        #     self.search(start, goal, moves)
-        # elif start.state[0] == 4:
-        #     self.empty_jug1()
-        #     print('empty_jug1')
-        #     self.search(start, goal, moves)
+            if self.goal[0] == 0:
+                return
+            if self.goal[0] == self.capacity1: # goal equal to capacity of jug1
+                self.fill_jug1()
+                print(self)
+            while self.state != self.goal:
+                if self.is_jug2_empty():
+                    self.fill_jug2()
+                    print(self)
+                if not self.is_jug1_full():
+                    self.pour_jug2_to_jug1()
+                    print(self)
+                if self.is_jug1_full():
+                    self.empty_jug1()
+                    print(self)
 
-        # elif start.state[0] > 0:
-        #     self.pour_jug1_to_jug2()
-        #     print('pour_jug1_to_jug2')
-        #     self.search(start, goal, moves)
-        # elif start.state[1] > 0:
-        #     self.pour_jug2_to_jug1()
-        #     print('fuck pour_jug2_to_jug1')
-        #     self.search(start, goal, moves)
-
-
+    def gcd(self, a, b):
+        if b == 0:
+            return a
+        return self.gcd(b, a % b)
+    
 if __name__ == '__main__':
-    start = State(0, 0)
-    goal = State(2, 0)
-    moves = []
-    start.search(start, goal, moves)
+    start = State(4, 3, [4, 0])
+    start.search()
