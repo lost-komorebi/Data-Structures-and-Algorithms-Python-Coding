@@ -75,7 +75,7 @@ class BinaryTree:
 
 
 def build_parse_tree(expression):
-    exp_list = expression.split()
+    exp_list = exp_split(expression)
     exp_stack = Stack()
     exp_tree = BinaryTree('')
     exp_stack.push(exp_tree)
@@ -100,6 +100,24 @@ def build_parse_tree(expression):
     return exp_tree
 
 
+def exp_split(expression):
+    exp = expression.replace(' ', '')
+    result = []
+    number = ''  # a variable to store number
+    for i in exp:
+        if i not in '()+-*/':
+            number += i
+        else:
+            # when we meet '()+-*/', then we add current number to result
+            # and set number = ''
+            if number != '':
+                result.append(number)
+            number = ''
+            result.append(i)
+    print(result)
+    return result
+
+
 def is_number(i):
     """ check if a string is number """
     if i.isdigit():
@@ -121,6 +139,6 @@ def evaluate(tree: BinaryTree):
 
 
 if __name__ == '__main__':
-    exp = '( 3 + ( ( 4 * 5 ) / 2 ) )'
+    exp = '( 31 + ( ( 4 * 5.2 ) / 2 ) )'
     print(build_parse_tree(exp).post_order_traversal())
     print(evaluate(build_parse_tree(exp)))
