@@ -9,7 +9,7 @@ import random
 
 
 class Node:
-    def __init__(self, key, data) -> None:
+    def __init__(self, key, data, left=None, right=None, parent=None, successor=None) -> None:
         self.key = key
         self.data = data
         self.left = None
@@ -24,10 +24,10 @@ class Node:
         return not self.left and not self.right
 
     def is_left_child(self):
-        return self.parent.left is self
+        return self.parent and self.parent.left is self
 
     def is_right_child(self):
-        return self.parent.right is self
+        return self.parent and self.parent.right is self
 
     def has_left_child(self):
         return self.left
@@ -37,6 +37,59 @@ class Node:
 
     def has_only_one_child(self):
         return (self.has_left_child() and not self.has_right_child()) or (not self.has_left_child() and self.has_right_child())
+
+    def find_successor(self):
+        """
+        1. If the node has a right child, then the successor is the smallest key in the right subtree.
+        2. If the node has no right child and is the left child of its parent, then the parent is the successor.
+        3. If the node is the right child of its parent, and itself has no right child, 
+        then the successor to this node is the successor of its parent, excluding this node.
+        """
+        successor = None
+        if self.has_right_child():
+            successor = self.right
+            while successor.has_left_child():
+                successor = successor.left
+        else:
+            if self.parent:
+                if self.is_left_child():
+                    successor = self.parent
+                else:
+                    self.parent.right = None
+                    successor = self.parent.find_successor()
+                    self.parent.right = self
+        return successor
+
+    def replace_node(self, key, data, left, right):
+        self.key = key
+        self.data = data
+        self.left = left
+        self.right = right
+        if self.has_left_child():
+            self.left.parent = self
+        if self.has_right_child():
+            self.right.parent = self
+
+    def splice_out(self):
+        """ move successor to proper position """
+        if self.is_leaf():
+            if self.is_left_child():
+                self.parent.left = None
+            else:
+                self.parent.right = None
+        elif self.has_only_one_child():
+            if self.has_left_child():  # node only has left child
+                self.left.parent = self.parent
+                if self.is_left_child():  # node is left child of its parent
+                    self.parent.left = self.left
+                elif self.is_right_child():  # node is right child of its parent
+                    self.parent.right = self.left
+            else:  # node only has right child
+                self.right.parent = self.parent
+                if self.is_left_child():  # node is left child of its parent
+                    self.parent.left = self.right
+                elif self.is_right_child():  # node is right child of its parent
+                    self.parent.right = self.right
 
 
 class BST:
@@ -70,6 +123,9 @@ class BST:
                 cur.right = node
                 node.parent = cur
 
+    def __setitem__(self, key, data):
+        self.put(key, data)
+
     def level_order_traversal(self):
         if not self.root:
             return
@@ -100,6 +156,12 @@ class BST:
         else:
             return self._get(key, cur.right)
 
+    def __contains__(self, key):
+        node = self.get(key)
+        if node:
+            return True
+        return False
+
     def delete(self, key):
         if self.size == 0:
             raise IndexError('delete from empty tree')
@@ -116,82 +178,52 @@ class BST:
     def _delete(self, node: Node):
         # 1. node need to be deleted has no child
         if node.is_leaf():
-            node.parent = None
             if node.is_left_child():
                 node.parent.left = None
             else:
                 node.parent.right = None
         # 2. node need to be deleted has one child
         elif node.has_only_one_child():
-            if node.is_root():  # node need to be deleted is root node
-                if node.has_left_child():
-                    self.root = node.left
-                    node.left.parent = None
-                else:
-                    self.root = node.right
-                    node.right.parent = None
-            else:  # node need to be deleted is not root node
+            if node.has_left_child():  # node only has left child
                 if node.is_left_child():  # node is left child of its parent
-                    if node.has_left_child():  # node only has left child
-                        node.left.parent = node.parent
-                        node.parent.left = node.left
-                    else:  # node only has right child
-                        node.right.parent = node.parent
-                        node.parent.left = node.right
-                else:  # node is right child of its parent
-                    if node.has_left_child():  # node only has left child
-                        node.left.parent = node.parent
-                        node.parent.right = node.left
-                    else:  # node only has right chiild
-                        node.right.parent = node.parent
-                        node.parent.right = node.right
+                    node.left.parent = node.parent
+                    node.parent.left = node.left
+                elif node.is_right_child():  # node is right child of its parent
+                    node.left.parent = node.parent
+                    node.parent.right = node.left
+                else:  # node is root
+                    node.replace_node(
+                        node.left.key, node.left.data, node.left.left, node.left.right)
+            else:  # node only has right child
+                if node.is_left_child():  # node is left child of its parent
+                    node.right.parent = node.parent
+                    node.parent.left = node.right
+                elif node.is_right_child():  # node is right child of its parent
+                    node.right.parent = node.parent
+                    node.parent.right = node.right
+                else:  # node is root
+                    node.replace_node(
+                        node.right.key, node.right.data, node.right.left, node.right.right)
         # 3. node need to be deleted has two children
         else:
-            successor = self.find_successor(node)
-            if node.is_root():  # node need to be deleted is root node
-                if successor.is_leaf():
-                    node.right = None
-                node.left.parent = successor
-                successor.left = node.left
-                self.root = successor
-                successor.parent = None
-            else:  # node need to be deleted is not root node
-                if successor.is_leaf():  # successor is leaf node
-                    if successor.is_left_child():
-                        successor.parent.left = None
-                    else:
-                        successor.parent.right = None
-                # according to the rule to find successor, successor has no left child
-                # so we don't need to consider that situation
-                elif successor.has_right_child():  # successor has right child
-                    successor.right.parent = successor.parent
-                    if successor.is_left_child():  # successor is left child
-                        successor.parent.left = successor.right
-                    elif successor.is_right_child():  # successor is right child
-                        successor.parent.right = successor.right
-                # replace key and data
-                node.key = successor.key
-                node.data = successor.data
+            successor = node.find_successor()
+            successor.splice_out()
+            # replace key and data
+            node.key = successor.key
+            node.data = successor.data
 
-    def find_successor(self, node: Node) -> Node:
-        """ 
-        find the smallest node from current node's right child, i.e. the left most node in its right child
-        current node must has two children, otherwise we don't need to find the successor
-        """
-        if node.right.left:
-            cur = node.right.left
-            while cur.left:
-                cur = cur.left
-            return cur
-        else:
-            return node.right
+    def __delitem__(self, key):
+        self.delete(key)
 
 
 if __name__ == '__main__':
     bst = BST()
-    ll = [2, 0, 7, 26, 25, 19, 17, 1, 90, 3, 36, 18]
-    # random.shuffle(ll)
+    ll = [2, 0, 7, 1, 3, 26, 25, 90, 19, 91, 17]
     for i in ll:
         bst.put(i, str(i))
-
+    bst.delete(7)
     print(bst.level_order_traversal())
+    bst[92] = '92'
+    print(92 in bst)
+    del bst[92]
+    print(92 in bst)
