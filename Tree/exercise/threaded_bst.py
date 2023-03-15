@@ -215,6 +215,30 @@ class BST:
     def __delitem__(self, key):
         self.delete(key)
 
+    def in_order_traversal_non_recursion(self):
+        """
+        left > root > right
+        Using the findSuccessor method, write a non-recursive inorder traversal for a binary search tree.
+        """
+        cur = self.root
+        if cur:
+            while cur.has_left_child():
+                cur = cur.left
+            print(cur.key)
+            successor = cur.find_successor()
+            while successor:
+                print(successor.key)
+                successor = successor.find_successor()
+
+    def in_order_traversal_recursion(self, root=None):
+        """ left > root > right, from small key to big key """
+        if not root:
+            root = self.root
+        if root.left:
+            self.in_order_traversal_recursion(root.left)
+        print(root.key)
+        if root.right:
+            self.in_order_traversal_recursion(root.right)
 
 if __name__ == '__main__':
     bst = BST()
@@ -227,3 +251,5 @@ if __name__ == '__main__':
     print(92 in bst)
     del bst[92]
     print(92 in bst)
+    print(bst.in_order_traversal_recursion())
+    print(bst.in_order_traversal_non_recursion())
