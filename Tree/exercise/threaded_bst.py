@@ -90,7 +90,7 @@ class Node:
             self.left.parent = self
         if self.has_right_child():
             self.right.parent = self
-        node.successor = node.find_successor()
+        #node.successor = node.find_successor()
 
     def splice_out(self):
         """ move successor to proper position """
@@ -125,9 +125,9 @@ class BST:
     def put(self, key, value):
         if self.root is None:
             self.root = Node(key, value)
+            self.size += 1
         else:
             self._put(key, value, self.root)
-        self.size += 1
 
     def _put(self, key, value, cur):
         if key < cur.key:
@@ -137,7 +137,12 @@ class BST:
                 node = Node(key, value)
                 cur.left = node
                 node.parent = cur
-                node.successor = node.find_successor()
+                # when we add a node, we need to update successor of itself and its predecessor
+                node.successor = node.find_successor()  # update successor of itself
+                pred = node.find_predecessor()  # find predecessor
+                if pred:  # update successor of its predecessor
+                    pred.successor = pred.find_successor()
+                self.size += 1
         elif key > cur.key:
             if cur.right:
                 self._put(key, value, cur.right)
@@ -145,7 +150,12 @@ class BST:
                 node = Node(key, value)
                 cur.right = node
                 node.parent = cur
-                node.successor = node.find_successor()
+                # when we add a node, we need to update successor of itself and its predecessor
+                node.successor = node.find_successor()  # update successor of itself
+                pred = node.find_predecessor()  # find predecessor
+                if pred:  # update successor of its predecessor
+                    pred.successor = pred.find_successor()
+                self.size += 1
         else:  # if we meet duplicate key, just updata the payload
             cur.data = value
 
@@ -167,6 +177,8 @@ class BST:
         return (visited)
 
     def get(self, key):
+        if self.size == 0:
+            return
         if self.root.key == key:
             return self.root
         else:
@@ -201,7 +213,11 @@ class BST:
             if self.size == 1 and self.root.key == key:  # delete root node in a tree has only root node
                 self.root = None
             else:
+                # when we delete a node, we just need to update successor of its predecessor
+                pred = node.find_predecessor()  # find predecessor
                 self._delete(node)
+                if pred:  # update successor of predecessor
+                    pred.successor = pred.find_successor()
             self.size -= 1
 
     def _delete(self, node: Node):
@@ -272,15 +288,15 @@ class BST:
 
 if __name__ == '__main__':
     bst = BST()
-    ll = list(random.sample(range(1, 100), 21))
+    ll = list(random.sample(range(1, 100), 15))
 
     for i in ll:
-        bst.put(i, str(i))
+        bst[i] = str(i)
+
+    print(len(bst))
 
     for i in ll:
-        node = bst[i]
-
-    print(bst.in_order_traversal_recursion(bst.root))
+        del bst[i]
 
     bst[92] = '92'
     print(92 in bst)
