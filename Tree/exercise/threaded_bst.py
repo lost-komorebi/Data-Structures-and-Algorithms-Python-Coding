@@ -12,10 +12,10 @@ class Node:
     def __init__(self, key, data, left=None, right=None, parent=None, successor=None) -> None:
         self.key = key
         self.data = data
-        self.left = None
-        self.right = None
-        self.parent = None
-        self.successor = None
+        self.left = left
+        self.right = right
+        self.parent = parent
+        self.successor = successor
 
     def is_root(self):
         return not self.parent
@@ -60,6 +60,27 @@ class Node:
                     self.parent.right = self
         return successor
 
+    def find_predecessor(self):
+        """
+        1. If the node has a left child, then the predecessor is the maximum key in the right subtree.
+        2. If the node has no left child, from the node move up the towards the root unitl we encounter a node that is 
+        the first right child ('P') we encountered. Then the parent of the right node ('P') is the predecessor, 
+        otherwise there is no predecessor for the node.
+        """
+        predecessor = None
+        if self.has_left_child():
+            predecessor = self.left
+            while predecessor.right:  # find the maximum value in left subtree
+                predecessor = predecessor.right
+        else:
+            while self:  # move up until encounter a right child of its parent
+                if self.is_right_child():
+                    predecessor = self.parent
+                    break
+                else:
+                    self = self.parent
+        return predecessor
+
     def replace_node(self, key, data, left, right):
         self.key = key
         self.data = data
@@ -69,6 +90,7 @@ class Node:
             self.left.parent = self
         if self.has_right_child():
             self.right.parent = self
+        node.successor = node.find_successor()
 
     def splice_out(self):
         """ move successor to proper position """
@@ -115,6 +137,7 @@ class BST:
                 node = Node(key, value)
                 cur.left = node
                 node.parent = cur
+                node.successor = node.find_successor()
         else:
             if cur.right:
                 self._put(key, value, cur.right)
@@ -122,6 +145,7 @@ class BST:
                 node = Node(key, value)
                 cur.right = node
                 node.parent = cur
+                node.successor = node.find_successor()
 
     def __setitem__(self, key, data):
         self.put(key, data)
@@ -155,6 +179,9 @@ class BST:
             return self._get(key, cur.left)
         else:
             return self._get(key, cur.right)
+
+    def __getitem__(self, key):
+        return self.get(key)
 
     def __contains__(self, key):
         node = self.get(key)
@@ -230,26 +257,30 @@ class BST:
                 print(successor.key)
                 successor = successor.find_successor()
 
-    def in_order_traversal_recursion(self, root=None):
+    def in_order_traversal_recursion(self, root):
         """ left > root > right, from small key to big key """
         if not root:
-            root = self.root
+            return
         if root.left:
             self.in_order_traversal_recursion(root.left)
         print(root.key)
         if root.right:
             self.in_order_traversal_recursion(root.right)
 
+
 if __name__ == '__main__':
     bst = BST()
-    ll = [2, 0, 7, 1, 3, 26, 25, 90, 19, 91, 17]
+    ll = list(random.sample(range(1, 100), 21))
+
     for i in ll:
         bst.put(i, str(i))
-    bst.delete(7)
-    print(bst.level_order_traversal())
+
+    for i in ll:
+        node = bst[i]
+
+    print(bst.in_order_traversal_recursion(bst.root))
+
     bst[92] = '92'
     print(92 in bst)
     del bst[92]
     print(92 in bst)
-    print(bst.in_order_traversal_recursion())
-    print(bst.in_order_traversal_non_recursion())
