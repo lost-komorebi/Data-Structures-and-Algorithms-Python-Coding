@@ -138,7 +138,7 @@ class BST:
                 cur.left = node
                 node.parent = cur
                 node.successor = node.find_successor()
-        else:
+        elif key > cur.key:
             if cur.right:
                 self._put(key, value, cur.right)
             else:
@@ -146,6 +146,8 @@ class BST:
                 cur.right = node
                 node.parent = cur
                 node.successor = node.find_successor()
+        else:  # if we meet duplicate key, just updata the payload
+            cur.data = value
 
     def __setitem__(self, key, data):
         self.put(key, data)
@@ -282,5 +284,7 @@ if __name__ == '__main__':
 
     bst[92] = '92'
     print(92 in bst)
+    bst[92] = '96'
+    print(bst[92].data)
     del bst[92]
     print(92 in bst)
