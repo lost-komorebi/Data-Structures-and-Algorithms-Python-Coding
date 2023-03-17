@@ -201,7 +201,8 @@ if __name__ == '__main__':
     print(print_exp(exp_tree1))
     print(evaluate(exp_tree1))
     
-    exp2 = '((not 1) and (1 and 2) or (4 and 4) and (not 5))'
+    exp2 = '((((not 1) and (1 and 2)) or (4 and 4)) and (not 5))'
     exp_tree2 = build_parse_tree(exp2)
     # print(exp_tree2.post_order_traversal())
+    print(print_exp(exp_tree2))
     print(evaluate(exp_tree2))
