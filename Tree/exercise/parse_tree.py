@@ -17,7 +17,7 @@ set the root value of the current node to the number and return to the parent.
 set the root value of the current node to the operator represented by the current token. 
 Add a new node as the right child of the current node and descend to the right child.
 4. If the current token is a ')', go to the parent of the current node.
-5. If the current token is a ')', go to the parent of the current node. Then do same operations
+5. If the current token is a 'not', go to the parent of the current node. Then do same operations
 with rule 3
 """
 
@@ -179,11 +179,28 @@ def fn_not(a):
     return not a
 
 
+def print_exp(tree):
+    exp = ''
+    if tree:
+        if type(tree.get_left_child()) == BinaryTree:
+            exp = '(' + print_exp(tree.get_left_child())
+        else:
+            exp = print_exp(tree.get_left_child())
+        exp = exp + str(tree.get_root_val())
+        if type(tree.get_right_child()) == BinaryTree:
+            exp = exp + print_exp(tree.get_right_child()) + ')'
+        else:
+            exp = exp + print_exp(tree.get_right_child())
+    return exp
+
+
 if __name__ == '__main__':
     exp1 = '( 31 + ( ( 4 * 5.2 ) / 2 ) )'
     exp_tree1 = build_parse_tree(exp1)
     # print(exp_tree1.post_order_traversal())
+    print(print_exp(exp_tree1))
     print(evaluate(exp_tree1))
+    
     exp2 = '((not 1) and (1 and 2) or (4 and 4) and (not 5))'
     exp_tree2 = build_parse_tree(exp2)
     # print(exp_tree2.post_order_traversal())
