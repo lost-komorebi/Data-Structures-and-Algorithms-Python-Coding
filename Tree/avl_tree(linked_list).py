@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 
 __author__ = 'komorebi'
-from stack_and_queue.queue_by_linked_list import Queue
-import sys
-sys.path.append('../stack_and_queue')
 
 
 class Node:
@@ -76,15 +73,15 @@ class BST:
         print(root.data)
 
     def level_order_traversal(self, root):
-        queue = Queue()
-        queue.en_queue(root)
-        while not queue.is_empty():
-            root = queue.de_queue()
+        queue = []
+        queue.append(root)
+        while queue:
+            root = queue.pop(0)
             print(root.data)
             if root.left is not None:
-                queue.en_queue(root.left)
+                queue.append(root.left)
             if root.right is not None:
-                queue.en_queue(root.right)
+                queue.append(root.right)
 
     def search(self, data):
         if self.root.data == data:
@@ -115,72 +112,67 @@ class AVL(BST):
     def __init__(self):
         super(AVL, self).__init__()
 
-    def insert(self, root, data):
+    def insert(self, data):
+        self.root = self._insert(self.root, data)
+
+    def _insert(self, root: AVLNode, data) -> AVLNode:
         # step 1 perform bst insertion
-        if self.root is None:  # empty tree
-            self.root = AVLNode(data)
-            return
         if not root:
             return AVLNode(data)
         elif data < root.data:
-            root.left = self.insert(root.left, data)
-            #print(root.left.data)
+            # left subtree equal to left subtree after insertion of new node
+            root.left = self._insert(root.left, data)
         else:
-            root.right = self.insert(root.right, data)
+            # right subtree equal to right subtree after insertion of new node
+            root.right = self._insert(root.right, data)
 
-        # step 2 update height of all parent nodes
-        # parent nodes' height equal to the highest child's height + 1
-        root.height = 1 + max(self.get_height(root.left),
-                              self.get_height(root.right))
+        # step 2 update height of root node
+        root.height = self.get_height(root)
+        #root.height = 1 + max(self.get_height(root.left), self.get_height(root.right))
 
         # step 3 get balance factor
         balance = self.get_balance(root)
 
         # step 4 check unbalanced node and try out rotations
-        # case 1 left left condition
+        # case 1 left left condition(root node is left heavy and we insert a new node at left side of root.left)
         if balance > 1 and data < root.left.data:
             return self.right_rotation(root)
-        # case 2 right right condition
-        if balance < -1 and data > root.right.data:
+        # case 2 right right condition(root node is right heavy and we insert a new node at right side of root.right)
+        if balance < - 1 and data > root.right.data:
             return self.left_rotation(root)
-        # case 3 left right condition
+        # case 3 left right condition(root node is left heavy and we insert a new node at right side of root.left)
         if balance > 1 and data > root.left.data:
             root.left = self.left_rotation(root.left)
             return self.right_rotation(root)
-        # case 4 right left condition
+        # case 4 right left condition(root node is right heavy and we insert a new node at left side of root.right)
         if balance < -1 and data < root.right.data:
             root.right = self.right_rotation(root.right)
             return self.left_rotation(root)
         return root
 
     def right_rotation(self, unbalanced_node):
-        # perform rotation
-        new_node = unbalanced_node.left
-        unbalanced_node.left = unbalanced_node.left.right
-        new_node.right = unbalanced_node
-        # update height
-        unbalanced_node.height = 1 + \
-            max(self.get_height(unbalanced_node.left), self.get_height(unbalanced_node.right))
-        new_node.height = 1 + \
-            max(self.get_height(new_node.left), self.get_height(new_node.right))
-        return new_node
+        new_root = unbalanced_node.left
+        unbalanced_node.left = new_root.right
+        new_root.right = unbalanced_node
+        # update height of unbalance_node and new_root
+        unbalanced_node.height = self.get_height(unbalanced_node)
+        new_root.height = self.get_height(new_root)
+        return new_root
 
     def left_rotation(self, unbalanced_node):
-        # perform rotation
-        new_node = unbalanced_node.right
-        unbalanced_node.right = unbalanced_node.right.left
-        new_node.left = unbalanced_node
-        # update height
-        unbalanced_node.height = 1 + \
-            max(self.get_height(unbalanced_node.left), self.get_height(unbalanced_node.right))
-        new_node.height = 1 + \
-            max(self.get_height(new_node.left), self.get_height(new_node.right))
-        return new_node
+        new_root = unbalanced_node.right
+        unbalanced_node.right = new_root.left
+        new_root.left = unbalanced_node
+        # update height of unbalance_node and new_root
+        unbalanced_node.height = self.get_height(unbalanced_node)
+        new_root.height = self.get_height(new_root)
+        return new_root
 
     def get_height(self, root):
         if not root:
             return 0
-        return root.height
+        # node's height equal to the height of higher child plus one
+        return 1 + max(self.get_height(root.left), self.get_height(root.right))
 
     def get_balance(self, root):
         """ get difference from left subtree and right subtree """
@@ -189,30 +181,74 @@ class AVL(BST):
         return self.get_height(root.left) - self.get_height(root.right)
 
 
+def pretty_print_tree(root):
+    """
+    This function pretty prints a binary tree
+    :param root: root of tree
+    :return: none
+    """
+    lines, _, _, _ = _pretty_print_tree(root)
+    for line in lines:
+        print(line)
+
+
+def _pretty_print_tree(root):
+    """
+    Code credits: Stack overflow
+    :param root: root of tree
+    :return: none
+    """
+    if root.right is None and root.left is None:
+        line = '%s' % root.data
+        width = len(line)
+        height = 1
+        middle = width // 2
+        return [line], width, height, middle
+
+    # Only left child.
+    if root.right is None:
+        lines, n, p, x = _pretty_print_tree(root.left)
+        s = '%s' % root.key
+        u = len(s)
+        first_line = (x + 1) * ' ' + (n - x - 1) * '_' + s
+        second_line = x * ' ' + '/' + (n - x - 1 + u) * ' '
+        shifted_lines = [line + u * ' ' for line in lines]
+        return [first_line, second_line] + shifted_lines, n + u, p + 2, n + u // 2
+
+    # Only right child.
+    if root.left is None:
+        lines, n, p, x = _pretty_print_tree(root.right)
+        s = '%s' % root.data
+        u = len(s)
+        first_line = s + x * '_' + (n - x) * ' '
+        second_line = (u + x) * ' ' + '\\' + (n - x - 1) * ' '
+        shifted_lines = [u * ' ' + line for line in lines]
+        return [first_line, second_line] + shifted_lines, n + u, p + 2, u // 2
+
+    # Two children.
+    left, n, p, x = _pretty_print_tree(root.left)
+    right, m, q, y = _pretty_print_tree(root.right)
+    s = '%s' % root.data
+    u = len(s)
+    first_line = (x + 1) * ' ' + (n - x - 1) * \
+        '_' + s + y * '_' + (m - y) * ' '
+    second_line = x * ' ' + '/' + \
+        (n - x - 1 + u + y) * ' ' + '\\' + (m - y - 1) * ' '
+    if p < q:
+        left += [n * ' '] * (q - p)
+    elif q < p:
+        right += [m * ' '] * (p - q)
+    zipped_lines = zip(left, right)
+    lines = [first_line, second_line] + \
+        [a + u * ' ' + b for a, b in zipped_lines]
+    return lines, n + m + u, max(p, q) + 2, n + u // 2
+
+
 if __name__ == '__main__':
-    my_tree = BST()
-    my_tree.insert(my_tree.root, 100)
-    my_tree.insert(my_tree.root, 80)
-    my_tree.insert(my_tree.root, 95)
+    ll = [40, 20, 10, 25, 30, 22, 50]
 
+    my_tree = AVL()
+    for i in ll:
+        my_tree.insert(i)
 
-    # my_tree.insert(my_tree.root, 11)
-    # my_tree.insert(my_tree.root, 22)
-    # my_tree.insert(my_tree.root, 33)
-    # my_tree.insert(my_tree.root, 44)
-    # my_tree.insert(my_tree.root, 55)
-    #my_tree.insert(my_tree.root, 5)
-    # print(my_tree.search(6))
-    # my_tree.insert_no_recursion(10)
-    # my_tree.insert_no_recursion(20)
-    # my_tree.insert_no_recursion(30)
-    # my_tree.insert_no_recursion(5)
-    # print(my_tree.root.data)
-    # print(my_tree.root.left.data)
-    # print(my_tree.root.right.data)
-    # print(my_tree.root.right.right.data)
-
-    # my_tree.in_order_traversal(my_tree.root)
-    # my_tree.post_order_traversal(my_tree.root)
-    # my_tree.pre_order_traversal(my_tree.root)
-    my_tree.level_order_traversal(my_tree.root)
+    pretty_print_tree(my_tree.root)
