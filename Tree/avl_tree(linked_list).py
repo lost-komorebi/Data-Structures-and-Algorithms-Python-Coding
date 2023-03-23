@@ -150,6 +150,65 @@ class AVL(BST):
             return self.left_rotation(root)
         return root
 
+    def delete(self, data_to_delete):
+        self.root = self._delete(self.root, data_to_delete)
+
+    def _delete(self, root: AVLNode, data_to_delete):
+        if root.data is None:
+            raise Exception('empty binary search tree')
+        # find the node to delete
+        if data_to_delete < root.data:
+            if root.left:
+                root.left = self._delete(root.left, data_to_delete)
+            else:
+                raise Exception(
+                    f"bst.delete({data_to_delete}): {data_to_delete} not in bst")
+        elif data_to_delete > root.data:
+            if root.right:
+                root.right = self._delete(root.right, data_to_delete)
+            else:
+                raise Exception(
+                    f"bst.delete({data_to_delete}): {data_to_delete} not in bst")
+        else:
+            # delete node which has zero or one child
+            if root.left is None:
+                temp = root.right
+                root.left = None
+                return temp
+            if root.right is None:
+                temp = root.left
+                root.right = None
+                return temp
+            # find the greatest node as successor in the left subtree
+            node = root.left
+            while node.right:
+                node = node.right
+            root.data = node.data  # replace data with the the data of successor
+            root.left = self._delete(root.left, node.data)  # delete successor
+        # step 2 update height of root node
+        root.height = self.get_height(root)
+        #root.height = 1 + max(self.get_height(root.left), self.get_height(root.right))
+
+        # step 3 get balance factor
+        balance = self.get_balance(root)
+
+        # step 4 check unbalanced node and try out rotations
+        # case 1 left left condition(root node is left heavy and root.left is left heavy)
+        if balance > 1 and self.get_balance(root.left) >= 0:
+            return self.right_rotation(root)
+        # case 2 right right condition(root node is right heavy and root.right is right heavy)
+        if balance < - 1 and self.get_balance(root.right) <= 0:
+            return self.left_rotation(root)
+        # case 3 left right condition(root node is left heavy and root.left is right heavey)
+        if balance > 1 and self.get_balance(root.left) < 0:
+            root.left = self.left_rotation(root.left)
+            return self.right_rotation(root)
+        # case 4 right left condition(root node is right heavy and root.right is left heavy)
+        if balance < -1 and self.get_balance(root.right) > 0:
+            root.right = self.right_rotation(root.right)
+            return self.left_rotation(root)
+        return root
+
     def right_rotation(self, unbalanced_node):
         new_root = unbalanced_node.left
         unbalanced_node.left = new_root.right
@@ -208,7 +267,7 @@ def _pretty_print_tree(root):
     # Only left child.
     if root.right is None:
         lines, n, p, x = _pretty_print_tree(root.left)
-        s = '%s' % root.key
+        s = '%s' % root.data
         u = len(s)
         first_line = (x + 1) * ' ' + (n - x - 1) * '_' + s
         second_line = x * ' ' + '/' + (n - x - 1 + u) * ' '
@@ -245,10 +304,12 @@ def _pretty_print_tree(root):
 
 
 if __name__ == '__main__':
-    ll = [40, 20, 10, 25, 30, 22, 50]
+    ll = [40, 20, 10, 25, 30, 22, 50, 51]
 
     my_tree = AVL()
     for i in ll:
         my_tree.insert(i)
+    pretty_print_tree(my_tree.root)
 
+    my_tree.delete(30)
     pretty_print_tree(my_tree.root)
