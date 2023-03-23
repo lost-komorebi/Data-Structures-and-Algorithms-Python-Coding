@@ -102,7 +102,7 @@ class BSTNode:
             else:
                 raise Exception(
                     f"bst.delete({data_to_delete}): {data_to_delete} not in bst")
-        if data_to_delete > self.data:
+        elif data_to_delete > self.data:
             if self.right:
                 self.right = self.right.delete(data_to_delete)
             else:
