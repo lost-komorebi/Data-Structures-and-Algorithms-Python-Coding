@@ -65,6 +65,8 @@ def knight_tour(n, start: Vertex, depth, path):
 
     if n < depth:
         neighbors = list(start.get_connections())
+        # this operation allows us to visit the node with fewer available moves, it improves performance
+        neighbors = order_by_avail(start, path)
         i = 0
         done = False
         # we will keep going until we visited all neighbors of current vertex or we have reached the end
@@ -79,6 +81,19 @@ def knight_tour(n, start: Vertex, depth, path):
     else:
         done = True
     return done
+
+
+def order_by_avail(start: Vertex, path):
+    """ sort start's neighbors in increasing order based on neighbors' unvisited neighbors """
+    ordered_list = []
+    for v in start.get_connections():
+        t = 0
+        for i in v.get_connections():
+            if i not in path:
+                t += 1
+        ordered_list.append([t, v])
+    ordered_list.sort(key=lambda x: x[0])
+    return [y[1] for y in ordered_list]
 
 
 if __name__ == '__main__':
