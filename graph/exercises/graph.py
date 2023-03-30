@@ -15,6 +15,9 @@ class Vertex:
         self.neighbors = {}
         self.distance = 0
         self.prev = None  # predecessor
+        self.discovery_time = 0  # the number of steps when a vertex is first encountered
+        self.finish_time = 0  # the number of steps when a vertex is colored black
+        self.color = None
 
     def add_neighbor(self, name_of_nbr: int | str, weight: int = 0):
         self.neighbors[name_of_nbr] = weight
@@ -43,6 +46,18 @@ class Vertex:
 
     def get_prev(self):
         return self.prev
+
+    def get_color(self):
+        return self.color
+
+    def set_color(self, color):
+        self.color = color
+
+    def set_discovery_time(self, time):
+        self.discovery_time = time
+
+    def set_finish_time(self, time):
+        self.finish_time = time
 
 
 class Graph:
