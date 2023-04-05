@@ -33,7 +33,7 @@ class Vertex:
         return self.name
 
     def get_weight(self, neighbor: Vertex):
-        return self.neighbors.get(neighbor.name)
+        return self.neighbors.get(neighbor)
 
     def get_distance(self):
         return self.distance
