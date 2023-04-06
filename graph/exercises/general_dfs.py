@@ -23,7 +23,7 @@ class DfsGraph(Graph):
                 self.dfs_helper(vertex)
 
     def dfs_helper(self, vertex):
-        print(f'current vertex {vertex.get_name()}')
+        #print(f'current vertex {vertex.get_name()}')
         vertex.set_color('gray')
         self.time += 1
         vertex.set_discovery_time(self.time)
@@ -31,9 +31,9 @@ class DfsGraph(Graph):
             if not nbr.get_color():  # nbr is not visited
                 nbr.set_prev(vertex)
                 self.dfs_helper(nbr)
-        print(f'current vertex {vertex.get_name()}')
+        #print(f'current vertex {vertex.get_name()}')
         self.time += 1
-        print(f'set vertex {vertex.get_name()} to black')
+        #print(f'set vertex {vertex.get_name()} to black')
         # set a vertex to black when this vertex has no neighbor to explore
         vertex.set_color('black')
         vertex.set_finish_time(self.time)
