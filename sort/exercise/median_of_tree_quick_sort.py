@@ -6,14 +6,9 @@
 @Author  :   komorebi 
 '''
 """
-median of three: To choose the pivot value, we will consider the first, 
-the middle, and the last element in the list. In our example, those are 54, 77, and 20.
-Now pick the median value, in our case 54, and use it for the pivot value.
-Devise alternative strategies for choosing the pivot value in quick sort. 
-For example, pick the middle item. 
-Re-implement the algorithm and then execute it on random data sets. 
-Under what criteria does your new strategy perform better or worse than the strategy from this chapter.
-conclusion: if the mid number is the median of three, then this algorithm performs better
+1. choose leftmost, middle, and rightmost elements, sort them in ascending order in the list
+2. set up l, r counters, ignore leftmost and rightmost elements
+3. partition as usual
 """
 
 
@@ -21,119 +16,57 @@ conclusion: if the mid number is the median of three, then this algorithm perfor
 
 import random
 import time
-def quick_sort1(li: list, left: int = None, right: int = None) -> None:
-    """ use last element as pivot """
+def quick_sort(li, left=None, right=None):
     if left is None:
         left = 0
     if right is None:
         right = len(li) - 1
     if left < right:
-        pivot_pos = partition1(li, left, right)
-        quick_sort1(li, left, pivot_pos-1)
-        quick_sort1(li, pivot_pos+1, right)
+        pivot_pos = partition(li, left, right)
+        quick_sort(li, left, pivot_pos - 1)  # sort left side
+        quick_sort(li, pivot_pos + 1, right)  # sort right side
 
 
-def partition1(li: list, left: int, right: int) -> int:
-    l = left
-    r = right-1
-    pivot = li[right]
+def partition(li, left, right):
+    median_of_three(li, left, right)
+    median_pos = (left + right) // 2
+    # after choosing median of three, li[left] is smaller than median of three, so we don't need to perform comparison on it
+    l = left + 1
+    # after choosing median of three, li[right] is bigger than median of three, so we don't need to perform comparison on it
+    r = right - 1
+
+    pivot = li[median_pos]  # set midian of three as pivot
 
     while l < r:
-        while l < right and li[l] < pivot:
+        while li[l] < pivot:  # l cursor keep looking for element larger than pivot
             l += 1
-        while r > left and li[r] >= pivot:
+        while li[r] > pivot:  # r cursor keep looking for element smaller than pivot
             r -= 1
-
         if l < r:
             li[l], li[r] = li[r], li[l]
 
-    if li[l] > pivot:
-        li[l], li[right] = li[right], li[l]
+    if li[l] < pivot:
+        li[l], li[median_pos] = li[median_pos], li[l]
     return l
 
 
-def quick_sort2(li: list, left: int = None, right: int = None) -> None:
-    """ use first element as pivot """
-    if left is None:
-        left = 1
-    if right is None:
-        right = len(li) - 1
-    if left < right:
-        pivot_pos = partition2(li, left, right)
-        quick_sort2(li, left, pivot_pos-1)
-        quick_sort2(li, pivot_pos+1, right)
-
-
-def partition2(li: list, left: int, right: int) -> int:
-    l = left
-    r = right
-    pivot = li[left]
-    while l < r:
-        while l < right and li[l] < pivot:
-            l += 1
-        while r > left and li[r] >= pivot:
-            r -= 1
-
-        if l < r:
-            li[l], li[r] = li[r], li[l]
-
-    if li[r] < pivot:
-        li[r], li[left] = li[left], li[r]
-
-    return r
-
-
-def quick_sort3(li: list, left: int = None, right: int = None) -> None:
-    """ use mid element as pivot """
-    if left is None:
-        left = 0
-    if right is None:
-        right = len(li) - 1
-    if left > 1 and right > 1:
-        pivot_pos = partition3(li, left, right)
-        quick_sort3(li, left, pivot_pos-1)
-        quick_sort3(li, pivot_pos+1, right)
-
-
-def partition3(li: list, left: int, right: int) -> int:
-    l = left
-    r = right
-    mid = len(li)//2
-    pivot = li[mid]
-
-    while l < r:
-        while l < right and li[l] < pivot:
-            l += 1
-        while r > right and li[r] > pivot:
-            r -= 1
-
-        if li[l] > li[r]:
-            li[l], li[r] = li[r], li[l]
-
-    if li[l] > pivot:
-        li[l], li[mid] = li[mid], li[l]
-    return l
-
-
-def median_of_tree(li: list) -> int:
-    temp = [li[0], li[-1], li[len(li)//2]]
-    return list(set(temp) - set([min(temp), max(temp)]))[0]
-
-
-def quick_sort(li):
-    median = median_of_tree(li)
-    if median == li[0]:
-        quick_sort1(li)
-    elif median == li[-1]:
-        quick_sort2(li)
-    else:
-        quick_sort3(li)
+def median_of_three(li, left, right):
+    """
+    choose leftmost, middle, rightmost element and put those three elements in ascending order in the list
+    """
+    middle = (left + right) // 2
+    if li[left] > li[right]:
+        li[left], li[right] = li[right], li[left]
+    if li[left] > li[middle]:
+        li[left], li[middle] = li[middle], li[left]
+    if li[right] < li[middle]:
+        li[right], li[middle] = li[middle], li[right]
 
 
 if __name__ == '__main__':
-    li = [random.randint(0, 1000000) for _ in range(1000000)]
-    print(median_of_tree(li), [li[0], li[len(li)//2], li[-1]])
+    li = random.sample(range(1, 10000), 1000)
     time1 = time.time()
     quick_sort(li)
     time2 = time.time()
+    assert li == sorted(li)
     print(time2 - time1)
