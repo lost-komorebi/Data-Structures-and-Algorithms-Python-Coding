@@ -24,53 +24,67 @@ class Graph:
         self.distance_map[start_vertex] = 0
         for i in range(len(self.nodes) - 1):  # loop len(self.nodes) - 1 times
             for start, end, weight in self.edges:
-                if self.distance_map[start] != float(
-                        'inf') and self.distance_map[start] + weight < self.distance_map[end]:
+                if self.distance_map[start] + weight < self.distance_map[end]:
                     self.distance_map[end] = self.distance_map[start] + weight
                     self.path_map[end] = start
         del self.path_map[start_vertex]  # delete path from start_vertex to itself
 
         # loop one more time to check if this graph a negative cycle
         for start, end, weight in self.edges:
-            if self.distance_map[start] != float(
-                    'inf') and self.distance_map[start] + weight < self.distance_map[end]:
+            if self.distance_map[start] + weight < self.distance_map[end]:
                 print('this graph contains negative cycle')
-                return
+                return False
+        return True
 
     def bellman(self, start_vertex):
-        self._bellman(start_vertex)
-        # generate readable path
-        paths = {}
-        for i in self.path_map:
-            path = [i]
-            while path[-1] != start_vertex:
-                path.append(self.path_map[path[-1]])
-            path.reverse()
-            path = ' -> '.join(path)
-            paths[i] = path
-        for i in self.distance_map:
-            if i != start_vertex:
-                print(f'the shortest distance from {start_vertex} to {i} is {self.distance_map[i]}, {paths[i]}')
-
-
-
-
-
+        
+        if self._bellman(start_vertex):
+            # generate readable path
+            paths = {}
+            for i in self.path_map:
+                path = [i]
+                while path[-1] != start_vertex:
+                    path.append(self.path_map[path[-1]])
+                path.reverse()
+                path = ' -> '.join(path)
+                paths[i] = path
+            for i in self.distance_map:
+                if i != start_vertex:
+                    print(f'the shortest distance from {start_vertex} to {i} is {self.distance_map[i]}, {paths[i]}')
 
 
 if __name__ == '__main__':
-    my_graph = Graph()
-    my_graph.add_node('a')
-    my_graph.add_node('b')
-    my_graph.add_node('c')
-    my_graph.add_node('e')
-    my_graph.add_node('d')
-    my_graph.add_edge('a', 'c', 6)
-    my_graph.add_edge('a', 'd', 6)
-    my_graph.add_edge('b', 'a', 3)
-    my_graph.add_edge('c', 'd', 1)
-    my_graph.add_edge('d', 'c', 2)
-    my_graph.add_edge('d', 'b', 1)
-    my_graph.add_edge('e', 'b', 4)
-    my_graph.add_edge('e', 'd', 2)
-    my_graph.bellman('e')
+    # graph with no negative edge
+    my_graph1 = Graph()
+    my_graph1.add_node('a')
+    my_graph1.add_node('b')
+    my_graph1.add_node('c')
+    my_graph1.add_node('e')
+    my_graph1.add_node('d')
+    my_graph1.add_edge('a', 'c', 6)
+    my_graph1.add_edge('a', 'd', 6)
+    my_graph1.add_edge('b', 'a', 3)
+    my_graph1.add_edge('c', 'd', 1)
+    my_graph1.add_edge('d', 'c', 2)
+    my_graph1.add_edge('d', 'b', 1)
+    my_graph1.add_edge('e', 'b', 4)
+    my_graph1.add_edge('e', 'd', 2)
+    my_graph1.bellman('e')
+    print(' ')
+
+    # graph with no negative edge
+    my_graph2 = Graph()
+    my_graph2.add_node('a')
+    my_graph2.add_node('b')
+    my_graph2.add_node('c')
+    my_graph2.add_node('e')
+    my_graph2.add_node('d')
+    my_graph2.add_edge('a', 'c', 6)
+    my_graph2.add_edge('a', 'd', -6)
+    my_graph2.add_edge('b', 'a', 3)
+    my_graph2.add_edge('c', 'd', 1)
+    my_graph2.add_edge('d', 'c', 2)
+    my_graph2.add_edge('d', 'b', 1)
+    my_graph2.add_edge('e', 'b', 4)
+    my_graph2.add_edge('e', 'd', 2)
+    my_graph2.bellman('e')
