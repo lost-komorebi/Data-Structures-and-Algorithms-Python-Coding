@@ -19,7 +19,7 @@ def fibonacci(n):
 
 
 def fibonacci_memoization(n, memo: dict):
-    """ Bottom-up approach by using memoization """
+    """ Top-down approach by using memoization """
     if n == 0:
         return 0
     elif n == 1:
@@ -31,7 +31,7 @@ def fibonacci_memoization(n, memo: dict):
 
 
 def fibonacci_tabulation(n):
-    """ Top-down approach by using tabulation """
+    """ Bottom-up approach by using tabulation """
     tb = [0, 1]
     for i in range(2, n+1):
         tb.append(tb[i-1] + tb[i-2])
